@@ -35,12 +35,30 @@ public class CNSBP_Runner {
                     id++;
                 }
             }
-            Problem problem = new Problem(items,capacity);
-            CNS_BP binPacking = new CNS_BP(problem); // Set capacity to 10 for example
-            System.out.println(problemName);
-            System.out.println("total: bin " + binPacking.runMainLoop().bins.size());
-            System.out.println("trashcan remaining: " + problem.getTrashCan().getTotalWeight());
-            Bin.counter = 1;
+
+
+          // if (!problemName.trim().equalsIgnoreCase("'TEST0049'")) {
+                Problem problem = new Problem(items, capacity);
+                CNS_BP binPacking = new CNS_BP(problem);
+                System.out.println(problemName);
+                Solution finalSolution =binPacking.runMainLoop();
+                System.out.println("Final total bin number: " + finalSolution.bins.size());
+                System.out.println("Trashcan total remaining item weight: " + problem.getTrashCan().getTotalWeight());
+
+                int total = 0;
+                for(Bin b: finalSolution.bins){
+                    total  +=  b.getTotalWeight();
+                }
+
+                int prob = 0;
+                for(Item i: problem.getAllItems()){
+                    prob  +=  i.getWeight();
+                }
+                System.out.println("Total weight in bin= "+ total + " .Total weight of problem= " + prob);
+                // Reset counter
+                Bin.counter = 1;
+       //     }
+
 
         }
         reader.close();

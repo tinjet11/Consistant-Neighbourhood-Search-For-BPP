@@ -34,7 +34,14 @@ public class Solution {
         System.out.println("Bin num: " + bins.size());
     }
 
-
+    public Bin getBinById(int id) {
+        for (Bin bin : bins) {
+            if (bin.getId() == id) {
+                return bin;
+            }
+        }
+        return null; // Return null if bin with given ID is not found
+    }
     public Solution copy() {
         // Create a new Solution object with the same problem
         Solution newSolution = new Solution(this.problem, new ArrayList<>());
@@ -65,19 +72,29 @@ public class Solution {
         return total;
     }
 
-    public double getObjectiveFunction() {
+    public double getObjectiveFunctionValue() {
+        double x = 0;
+        for (Bin bin : bins) {
+            x += Math.pow(bin.getTotalWeight() / (double) problem.getCapacity(), 2);
+        }
 
-        // Combine both objectives with the weighted sum
-        double objectiveValue =  getTotalWastedCapacity() + problem.getTrashCan().getTotalWeight();
+        double objectiveValue = 1 - (x / this.getNumBins());
 
+        // Check for NaN and return 0 if NaN
+        if (Double.isNaN(objectiveValue)) {
+            return 0.0;
+        }
 
         return objectiveValue;
     }
 
 
     public boolean isSolutionComplete() {
-
-       return problem.getTrashCan().getTotalItem() ==0;
+        int total=0;
+        for (Bin bin : bins) {
+            total += bin.getTotalItem();
+        }
+       return (problem.getTrashCan().getTotalItem() ==0);//&& problem.getAllItems().size() == total);
     }
 
 
