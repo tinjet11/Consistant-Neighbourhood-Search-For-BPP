@@ -6,11 +6,22 @@ public  class Problem {
 
     private TrashCan trashCan;
 
+    public String getProblemName() {
+        return problemName;
+    }
+
+    public void setProblemName(String problemName) {
+        this.problemName = problemName;
+    }
+
+    private String problemName;
+
     private int capacity;
 
-    public Problem(List<Item> allItems,int capacity){
+    public Problem(List<Item> allItems,int capacity,String problemName){
         this.allItems = allItems;
         this.capacity = capacity;
+        this.problemName = problemName;
         trashCan = new TrashCan(capacity);
     }
 

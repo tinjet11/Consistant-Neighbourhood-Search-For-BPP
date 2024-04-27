@@ -19,31 +19,35 @@ public class CNS_BP {
 
         //randomly shuffle the set of items
         Collections.shuffle(items);
-
+        long startTime = System.currentTimeMillis();
         //S ← complete solution obtained by First Fit
         Solution S = firstFitDecreasing(items);
+        //Solution S = firstFit(items);
         S.printNumBin();
 
         //m ← number of bins in S
         int m = S.bins.size();
-        long startTime = System.currentTimeMillis();
+
         long timeLimit = 60000;
 
         //While (m > LB  and time limit not exceeded)
         while (m > LB && (System.currentTimeMillis() - startTime) < timeLimit) {
             //m = m- 1;
-
             //build partial solution P with m − 2 bins ▹ // delete 3 bins from S
             Solution temp = S.copy();
             Solution partialSolution = buildPartialSolution(temp);
             System.out.println("Bin: " + partialSolution.getNumBins());
 
-
             //try to find complete solution with m bins
             Solution SPrime = CNS(partialSolution);
 
+            for(Bin b: SPrime.bins){
+                System.out.print(b.getRemainingCapacity() + ", ");
+            }
+
             //If solution S′ not complete, then break
             if (!SPrime.isSolutionComplete()) {
+                System.out.println("Total wasted space: " + SPrime.getTotalWastedCapacity());
                 System.out.println("Solution not complete so break");
                 System.out.println(problem.getTrashCan().getTotalItem());
                 problem.getTrashCan().print();
@@ -60,8 +64,18 @@ public class CNS_BP {
             //update the current bin number
             m = S.bins.size() ;
         }
-        double elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
-        System.out.println("Total time: " + elapsedTime + " seconds");
+
+        double elapsedTime = (System.currentTimeMillis() - startTime) / 1000.0;
+        String problemName  = problem.getProblemName() ;
+        if (CNSBP_Runner.totalTime.containsKey(problemName)) {
+            // Key exists, so add the number to the existing value
+            double currentValue = CNSBP_Runner.totalTime.get(problemName);
+            double newValue = currentValue + elapsedTime;
+            CNSBP_Runner.totalTime.put(problemName, newValue);
+        } else {
+            // Key doesn't exist, so add it with the provided value
+            CNSBP_Runner.totalTime.put(problemName, elapsedTime);
+        }
 
         //Add those bin with item that we removed in the first step to the solution
         for (Bin bin : binsWithPairs) {
@@ -115,87 +129,22 @@ public class CNS_BP {
     private Solution CNS(Solution partialSolution) {
 
         long startTime = System.currentTimeMillis();
-        long timeLimit = 10000;
+        long timeLimit = 1000;
         Tabu tabu = new Tabu(partialSolution, 1, problem);
         // TODO add time or iterations limit not exceeded to the while condition
-        while (!partialSolution.isSolutionComplete() && (System.currentTimeMillis() - startTime) < timeLimit) {
+        //while (!partialSolution.isSolutionComplete() && (System.currentTimeMillis() - startTime) < timeLimit) {
+        while (!partialSolution.isSolutionComplete() && !CNSBP_Runner.converged) {
 
             partialSolution = tabu.tabuSearch(partialSolution);
             partialSolution = Descent(partialSolution);
-            //System.out.println("One CNS loop done");
-
-//             System.out.print("[ " );
-//             for(Bin bin: partialSolution.bins){
-//                 System.out.print(bin.getRemainingCapacity()+ " , ");
-//             }
-//             System.out.println(  " ] " + partialSolution.getTotalWastedCapacity());
 
         }
-//
-//        System.out.println("Solution complete: " + partialSolution.isSolutionComplete());
-
+        //set back to false
+        CNSBP_Runner.converged = false;
         return partialSolution;
     }
 
     public static List<Item> PStar = new ArrayList<>();
-
-    // input: set of items S, current packing P (initialized to empty set)
-//    public static List<Item> PackSet(List<Item> S, List<Item> P) {
-//        // If S is empty
-//        if (S.isEmpty()) {
-//            // If w(P) > w(P*) or w(P) = w(P*) and |P| < |P*|
-//            if (weight(P) > weight(PStar) || (weight(P) == weight(PStar) && P.size() < PStar.size())) {
-//                // P* ← P
-//                PStar = P;
-//            }
-//        } else {
-//            // i ← first item in S
-//            Item i = S.get(0);
-//            // S' ← S \ {i} // Remove i from the set of items
-//            List<Item> newS = new ArrayList<>(S);
-//            newS.remove(i);
-//            // If (w(P) + w_i ≤ C) // if the current packing weight + weight of i is less than capacity
-//            if (weight(P) + i.getWeight() <= problem.getCapacity()) {
-//                // pack_set(S', P ∪ {i}) // call the function recursively with i added to P
-//                List<Item> newP = new ArrayList<>(P);
-//                newP.add(i);
-//                PackSet(newS, newP);
-//            }
-//            // pack_set(S', P)
-//            PackSet(newS, P);
-//        }
-//        // output: best packing P* (static variable, initialized to empty set)
-//        return PStar;
-//    }
-
-//    public static List<Item> PackSet(List<Item> S, List<Item> P) {
-//        if (S.isEmpty()) {
-//            if (weight(P) > weight(PStar) || (weight(P) == weight(PStar) && P.size() < PStar.size())) {
-//                PStar = new ArrayList<>(P);
-//            }
-//            return PStar;
-//        }
-//
-//        Item i = S.get(0);
-//        List<Item> newS = new ArrayList<>(S);
-//        newS.remove(0);
-//
-//        // Create a copy of P without adding i
-//        List<Item> newPWithoutI = new ArrayList<>(P);
-//
-//        // Attempt to add i to newP if it fits
-//        if (weight(P) + i.getWeight() <= problem.getCapacity()) {
-//            List<Item> newPWithI = new ArrayList<>(P);
-//            newPWithI.add(i);
-//            // Recur with i added to P
-//            PackSet(newS, newPWithI);
-//        }
-//
-//        // Recur without adding i to P
-//        PackSet(newS, newPWithoutI);
-//
-//        return PStar;
-//    }
 
     public static List<Item> PackSet(List<Item> S, List<Item> P) {
         return PackSetHelper(S, P, new HashMap<>());
@@ -248,33 +197,6 @@ public class CNS_BP {
  that is, the set of items assigned to bin b fits the bin capacity as
  tightly as possible. Pack is a generalization of a Swap move with
  p and q both being unlimited.*/
-//    public Solution packB(Solution solution, int binIndex) {
-//        Solution newSolution = solution.copy();
-//        Bin updatedBin = newSolution.getBins().get(binIndex);
-//
-//        // Sort the items in the trash can in descending order of weight
-//        List<Item> trashCanItems = problem.getTrashCan().getItemsList();
-//        Collections.sort(trashCanItems, Collections.reverseOrder());
-//
-//        List<Item> itemsToRemove = new ArrayList<>(); // List to hold items to remove
-//
-//        // Iterate through the items in the trash can
-//        for (Item item : trashCanItems) {
-//            if (updatedBin.addItem(item)) {
-//                System.out.println("Item packed: "+ item.getWeight());
-//                // If the item was added to the bin, mark it for removal
-//                itemsToRemove.add(item);
-////                System.out.println(item.isInBin());
-//            }
-//        }
-//
-//        // Remove the marked items from the trash can
-//        for (Item item : itemsToRemove) {
-//            problem.getTrashCan().removeItem(item);
-//        }
-//
-//        return newSolution;
-//    }
     public Solution packB(Solution solution, int binIndex) {
         Solution newSolution = solution.copy();
         Bin updatedBin = newSolution.getBins().get(binIndex);
@@ -282,26 +204,13 @@ public class CNS_BP {
         List<Item> trashCanItems = problem.getTrashCan().getItemsList();
         trashCanItems.sort(Collections.reverseOrder());
 
-//        for(Item i: trashCanItems){
-//            System.out.print(" " + i.getWeight());
-//        }
-      //  System.out.println(" " + problem.getTrashCan().getTotalWeight());
-
         for (Iterator<Item> iterator = trashCanItems.iterator(); iterator.hasNext(); ) {
             Item item = iterator.next();
             if (updatedBin.addItem(item)) {
-                System.out.println("Item packed: " + item.getWeight());
+                //System.out.println("Item packed: " + item.getWeight());
                 iterator.remove();
                 break;
             }
-//            if(item.getWeight() == 433){
-//
-//                System.out.println("error" + item.getWeight());
-//            }
-//            else {
-//                break;
-//            }
-
         }
 
 
@@ -333,12 +242,12 @@ public class CNS_BP {
                 PStar = new ArrayList<>();
                 if (problem.getTrashCan().getTotalWeight() <= 2 * capacity
                         && weight(PackSet(problem.getTrashCan().getItemsList(), new ArrayList<>())) >= problem.getTrashCan().getTotalWeight() - capacity) {
-                    System.out.println("Before: "+ newSolution.getNumBins());
+                    //System.out.println("Before: "+ newSolution.getNumBins());
                     newBins = packTrashcanIntoNewBins();
                     packedSolution.bins.add(newBins.get(0));
                     packedSolution.bins.add(newBins.get(1));
                     newSolution = packedSolution;
-                    System.out.println("After: "+ newSolution.getNumBins());
+                  //  System.out.println("After: "+ newSolution.getNumBins());
 
                     packed = true;
                     break;
@@ -398,6 +307,11 @@ public class CNS_BP {
         List<Bin> newBins = new ArrayList<>();
         newBins.add(bin1);
         newBins.add(bin2);
+//        Solution nonAssigned = CNS_BP.firstFitDecreasing(problem.getTrashCan().getItemsList());
+//
+//        List<Bin> newBins = new ArrayList<>();
+//        newBins.addAll(nonAssigned.getBins());
+//        System.out.println(newBins.size());
 
         return newBins;
     }
@@ -437,7 +351,7 @@ public class CNS_BP {
         return solution;
     }
 
-    private Solution firstFitDecreasing(List<Item> items) {
+    public static Solution firstFitDecreasing(List<Item> items) {
         // Custom comparator for sorting items in descending order of weight
         Comparator<Item> weightComparator = Comparator.comparingInt(Item::getWeight).reversed();
         items.sort(weightComparator);

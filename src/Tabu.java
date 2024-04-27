@@ -21,92 +21,7 @@ public class Tabu {
         // Initialize freq and tabu arrays
         freq = new int[initSol.getNumBins()+10000][problem.getMaxItemWeight() + 1];
         tabu = new int[initSol.getNumBins()+10000][problem.getMaxItemWeight() + 1];
-        //resetTabu();
     }
-
-//    public Solution tabuSearch(Solution solution) {
-//        this.sol = solution.copy();
-//        this.bestSol = solution.copy();
-//        long startTime = System.currentTimeMillis();
-//        long endTime = startTime + (long) (timeLimitTabu * 1000);
-//
-//        List<List<Item>> subsetsS;
-//        List<List<Item>> subsetsT;
-//        iter = 0;
-//        resetTabu();
-//        while (iter < maxNmbIters && System.currentTimeMillis() < endTime) {
-//            List<Item> SStar = new ArrayList<>();
-//            List<Item> TStar = new ArrayList<>();
-//            Bin bStar = null;
-//            int bStarId = -1;
-//            int minDelta = sol.getNumBins() * CNS_BP.weight(problem.getAllItems());
-//
-//            for (Bin bin : sol.getBins()) {
-//                subsetsS = generateSubsets(bin.getItemsList());
-//                subsetsT = generateSubsets(problem.getTrashCan().getItemsList());
-//
-//                for (List<Item> S : subsetsS) {
-//                    if (!isTabu(bin, S)) {
-//                        for (List<Item> T : subsetsT) {
-//                            if (isAllowedPair(S, T)) {
-//                                int totalWeightBin = bin.getTotalWeight();
-//                                int weightS = CNS_BP.weight(S);
-//                                int weightT = CNS_BP.weight(T);
-//
-//                                // S = item to be moved to trashcan
-//                                // T = item to be moved to bin
-//                                if (totalWeightBin + weightT - weightS <= problem.getCapacity()) {
-//                                    int delta = sol.getNumBins() * (weightS - weightT) - (S.size() - T.size());
-//                                    if (delta <= minDelta) {
-//                                        minDelta = delta;
-//                                        SStar = S;
-//                                        TStar = T;
-//                                        bStar = bin;
-//                                        bStarId = bin.getId();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if (TStar.isEmpty()) {
-//                break; // Terminate when no allowed move exists
-//            }
-//
-//            System.out.println("Before swap: " + problem.getTrashCan().getTotalWeight());
-//            Bin newBin = performSwap(SStar, TStar, bStar);
-//            System.out.println("After swap: " + problem.getTrashCan().getTotalWeight());
-//
-//            sol.getBinById(bStarId).setItemsList(newBin.getItemsList());
-//
-//            System.out.println("New: " + sol.getObjectiveFunctionValue());
-//            System.out.println("Old: " + bestSol.getObjectiveFunctionValue());
-//            if (sol.getObjectiveFunctionValue() <= bestSol.getObjectiveFunctionValue()) {
-//                bestSol = sol.copy();
-//                resetTabu();
-//            }
-//
-//            CNS_BP.PStar = new ArrayList<>();
-//            if (problem.getTrashCan().getTotalWeight() <= 2 * problem.getCapacity()
-//                    &&  (CNS_BP.weight(CNS_BP.PackSet(problem.getTrashCan().getItemsList(),new ArrayList<>())) >= CNS_BP.weight(problem.getTrashCan().getItemsList()) - problem.getCapacity()))
-//            {
-//                packTrashcanIntoNewBins();
-//                break; // Terminate when conditions met
-//            }
-//
-//            updateTabu(bStar, SStar);
-//
-//            iter++;
-//        }
-//
-//        if (bestSol != sol) {
-//            return bestSol;
-//        } else {
-//            return sol;
-//        }
-//    }
 
     public Solution tabuSearch(Solution solution) {
         this.sol = solution.copy();
@@ -156,19 +71,18 @@ public class Tabu {
             }
 
             if (TStar.isEmpty()) {
+                CNSBP_Runner.converged = true;
                 break; // Terminate when no allowed move exists
             }
 
-            System.out.println("Before swap: " + problem.getTrashCan().getTotalWeight());
+            //System.out.println("Before swap: " + problem.getTrashCan().getTotalWeight());
             Bin newBin = performSwap(SStar, TStar, bStar);
-            System.out.println("After swap: " + problem.getTrashCan().getTotalWeight());
+            //System.out.println("After swap: " + problem.getTrashCan().getTotalWeight());
             sol.getBins().remove(sol.getBinById(bStarId));
 
             sol.getBins().add(newBin);
 
-            System.out.println("New: " + sol.getObjectiveFunctionValue());
-            System.out.println("Old: " + bestSol.getObjectiveFunctionValue());
-            if (sol.getObjectiveFunctionValue() <= bestSol.getObjectiveFunctionValue()) {
+            if (sol.getObjectiveFunctionValue() < bestSol.getObjectiveFunctionValue()) {
                 bestSol = sol.copy();
                 resetTabu();
             }
@@ -194,8 +108,8 @@ public class Tabu {
     }
 
     private List<List<Item>> generateSubsets(List<Item> items) {
-        int maxSize = 3; // Maximum subset size
-        int maxSubsets = 20; // Maximum number of subsets to generate
+        int maxSize = 7; // Maximum subset size
+        int maxSubsets = 5000; // Maximum number of subsets to generate
         List<List<Item>> subsets = new ArrayList<>();
         int n = items.size();
         Collections.shuffle(items);
@@ -224,13 +138,9 @@ public class Tabu {
     private boolean isAllowedPair(List<Item> S, List<Item> T) {
         int weightS = CNS_BP.weight(S);
         int weightT = CNS_BP.weight(T);
-        return weightT > weightS && S.size() <= T.size() ; // Adjust as needed for allowed pairs
+        return weightT > weightS ;//&& S.size() <= T.size() ; // Adjust as needed for allowed pairs
     }
 
-
-//    private int getSubsetWeight(List<Item> subset) {
-//        return subset.stream().mapToInt(Item::getWeight).sum();
-//    }
 
     private Bin performSwap(List<Item> SStar, List<Item> TStar, Bin bStar) {
 
@@ -257,52 +167,16 @@ public class Tabu {
             problem.getTrashCan().removeItem(item);
         }
 
-        System.out.println("Remove from trashcan " + CNS_BP.weight(itemsToRemoveFromTC));
+//        System.out.println("Remove from trashcan " + CNS_BP.weight(itemsToRemoveFromTC));
         // Add items back to bin if needed
         for (Item item : itemsToAddToTC) {
             problem.getTrashCan().addItem(item);
         }
 
-        System.out.println("Add to trashcan " + CNS_BP.weight(itemsToAddToTC));
+//        System.out.println("Add to trashcan " + CNS_BP.weight(itemsToAddToTC));
         return bStar;
     }
 
-//    private Bin performSwap(List<Item> SStar, List<Item> TStar, Bin bStar) {
-//
-//        List<Item> itemsToRemoveFromTC = new ArrayList<>();
-//        List<Item> itemsToAddToTC = new ArrayList<>();
-//
-//        // S = item to be move to trashcan
-//        // T = item to be move to bin
-//        for (Item item : SStar) {
-//            itemsToAddToTC.add(item);
-//            bStar.removeItem(item);
-//            //System.out.println("Item add to trash can : " + item.getWeight());
-//        }
-//        // S = item to be move to trashcan
-//        // T = item to be move to bin
-//        for (Item item : TStar) {
-//            if (!SStar.contains(item)) {
-//                itemsToRemoveFromTC.add(item);
-//                bStar.addItem(item);
-//                //  System.out.println("Item remove from trash can : " + item.getWeight());
-//            }
-//        }
-//
-//        // Remove the marked items from the trash can
-//        for (Item item : itemsToRemoveFromTC) {
-//            problem.getTrashCan().removeItem(item);
-//        }
-//
-//        System.out.println("Remove from trashcan " +CNS_BP.weight(itemsToRemoveFromTC));
-//        // Add items back to bin if needed
-//        for (Item item : itemsToAddToTC) {
-//            problem.getTrashCan().addItem(item);
-//        }
-//
-//        System.out.println("Add to trashcan " +CNS_BP.weight(itemsToAddToTC));
-//        return bStar;
-//    }
 
 
     private boolean isTabu(Bin bin, List<Item> S) {
@@ -344,54 +218,57 @@ public class Tabu {
     }
 
     public List<Bin> packTrashcanIntoNewBins() {
-        Bin bin1;
-        Bin bin2;
-        List<Item> tc = new ArrayList<>(problem.getTrashCan().getItemsList());
-
-        Collections.sort(tc, Collections.reverseOrder());
-        List<Item> itemsToRemove;
-
-        int maxAttempts = 1000; // Maximum attempts to pack the items
-        int attempts = 0;
-
-        while (true) {
-            System.out.println("Repack to bin in tabu");
-            boolean fullPacked = true;
-            bin1 = new Bin(problem.getCapacity());
-            bin2 = new Bin(problem.getCapacity());
-            itemsToRemove = new ArrayList<>();
-
-            for (Item item : tc) {
-                if (bin1.addItem(item)) {
-                    itemsToRemove.add(item);
-                } else if (bin2.addItem(item)) {
-                    itemsToRemove.add(item);
-                } else {
-                    fullPacked = false;
-                }
-
-                if (fullPacked) {
-                    break;
-                }
-            }
-
-            attempts++;
-            if (fullPacked || attempts >= maxAttempts) {
-                break;
-            }
-
-            Collections.shuffle(tc);
-        }
-
-        // Remove the marked items from the trash can
-        for (Item item : itemsToRemove) {
-            problem.getTrashCan().removeItem(item);
-        }
+//        Bin bin1;
+//        Bin bin2;
+//        List<Item> tc = new ArrayList<>(problem.getTrashCan().getItemsList());
+//
+//        Collections.sort(tc, Collections.reverseOrder());
+//        List<Item> itemsToRemove;
+//
+//        int maxAttempts = 1000; // Maximum attempts to pack the items
+//        int attempts = 0;
+//
+//        while (true) {
+//            System.out.println("Repack to bin in tabu");
+//            boolean fullPacked = true;
+//            bin1 = new Bin(problem.getCapacity());
+//            bin2 = new Bin(problem.getCapacity());
+//            itemsToRemove = new ArrayList<>();
+//
+//            for (Item item : tc) {
+//                if (bin1.addItem(item)) {
+//                    itemsToRemove.add(item);
+//                } else if (bin2.addItem(item)) {
+//                    itemsToRemove.add(item);
+//                } else {
+//                    fullPacked = false;
+//                }
+//
+//                if (fullPacked) {
+//                    break;
+//                }
+//            }
+//
+//            attempts++;
+//            if (fullPacked || attempts >= maxAttempts) {
+//                break;
+//            }
+//
+//            Collections.shuffle(tc);
+//        }
+//
+//        // Remove the marked items from the trash can
+//        for (Item item : itemsToRemove) {
+//            problem.getTrashCan().removeItem(item);
+//        }
+//
+//        List<Bin> newBins = new ArrayList<>();
+//        newBins.add(bin1);
+//        newBins.add(bin2);
+        Solution nonAssigned = CNS_BP.firstFitDecreasing(problem.getTrashCan().getItemsList());
 
         List<Bin> newBins = new ArrayList<>();
-        newBins.add(bin1);
-        newBins.add(bin2);
-
+        newBins.addAll(nonAssigned.getBins());
         return newBins;
     }
 
