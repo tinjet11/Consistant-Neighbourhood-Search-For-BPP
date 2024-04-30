@@ -21,8 +21,8 @@ public class CNS_BP {
         Collections.shuffle(items);
         long startTime = System.currentTimeMillis();
         //S ← complete solution obtained by First Fit
-        Solution S = firstFitDecreasing(items);
-        //Solution S = firstFit(items);
+        //Solution S = firstFitDecreasing(items);
+        Solution S = firstFit(items);
         S.printNumBin();
 
         //m ← number of bins in S
@@ -325,7 +325,11 @@ public class CNS_BP {
         for (Item item : items) {
             totalWeight += item.getWeight();
         }
-        return totalWeight / problem.getCapacity();
+        int lowerBound = totalWeight / problem.getCapacity();
+        if (totalWeight % problem.getCapacity() != 0) {
+            lowerBound++; // Round up if there's a remainder
+        }
+        return lowerBound;
     }
 
     private Solution firstFit(List<Item> items) {

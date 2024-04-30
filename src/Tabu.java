@@ -108,7 +108,7 @@ public class Tabu {
     }
 
     private List<List<Item>> generateSubsets(List<Item> items) {
-        int maxSize = 7; // Maximum subset size
+        int maxSize = 3; // Maximum subset size
         int maxSubsets = 5000; // Maximum number of subsets to generate
         List<List<Item>> subsets = new ArrayList<>();
         int n = items.size();

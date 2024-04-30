@@ -19,8 +19,8 @@ public class CNSBP_Runner {
         final int maxIter = 30;
         for (int iter = 0; iter < maxIter; iter++) {
 
-          //  BufferedReader reader = new BufferedReader(new FileReader("/Users/leongtinjet/Downloads/BPP.txt"));
-            BufferedReader reader = new BufferedReader(new FileReader("/Users/leongtinjet/Downloads/hard28/hard28"));
+            BufferedReader reader = new BufferedReader(new FileReader("/Users/leongtinjet/Downloads/BPP.txt"));
+            //BufferedReader reader = new BufferedReader(new FileReader("/Users/leongtinjet/Downloads/hard28/hard28"));
             String line;
             // Read item weights and quantities
 
