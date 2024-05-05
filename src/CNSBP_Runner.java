@@ -23,6 +23,8 @@ public class CNSBP_Runner {
 
             String line;
 
+            System.out.println("Iteration "+ iter);
+
             // Read item weights and quantities
             while ((line = reader.readLine()) != null) {
                 int id = 0;
