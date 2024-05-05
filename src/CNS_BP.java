@@ -32,29 +32,27 @@ public class CNS_BP {
 
         //While (m > LB  and time limit not exceeded)
         while (m > LB && (System.currentTimeMillis() - startTime) < timeLimit) {
-            //m = m- 1;
+            m = m- 1;
             //build partial solution P with m − 2 bins ▹ // delete 3 bins from S
             Solution temp = S.copy();
             Solution partialSolution = buildPartialSolution(temp);
-            System.out.println("Bin: " + partialSolution.getNumBins());
 
             //try to find complete solution with m bins
             Solution SPrime = CNS(partialSolution);
 
+            System.out.println("\nRemaining space for each bin");
             for(Bin b: SPrime.bins){
                 System.out.print(b.getRemainingCapacity() + ", ");
             }
 
             //If solution S′ not complete, then break
             if (!SPrime.isSolutionComplete()) {
-                System.out.println("Total wasted space: " + SPrime.getTotalWastedCapacity());
-                System.out.println("Solution not complete so break");
-                System.out.println(problem.getTrashCan().getTotalItem());
+                System.out.println("\nTotal wasted space: " + SPrime.getTotalWastedCapacity());
+                System.out.println("Trashcan Remaining Item List");
                 problem.getTrashCan().print();
                 Solution nonAssigned = firstFitDecreasing(problem.getTrashCan().getItemsList());
                 SPrime.getBins().addAll(nonAssigned.getBins());
                 S = SPrime;
-                //problem.getTrashCan().getItemsList().clear();
                 break;
             }
 
@@ -129,15 +127,11 @@ public class CNS_BP {
     private Solution CNS(Solution partialSolution) {
 
         long startTime = System.currentTimeMillis();
-        long timeLimit = 1000;
+        long timeLimit = 60000;
         Tabu tabu = new Tabu(partialSolution, 1, problem);
-        // TODO add time or iterations limit not exceeded to the while condition
-        //while (!partialSolution.isSolutionComplete() && (System.currentTimeMillis() - startTime) < timeLimit) {
-        while (!partialSolution.isSolutionComplete() && !CNSBP_Runner.converged) {
-
+        while (!partialSolution.isSolutionComplete() && !CNSBP_Runner.converged && (System.currentTimeMillis() - startTime) < timeLimit) {
             partialSolution = tabu.tabuSearch(partialSolution);
             partialSolution = Descent(partialSolution);
-
         }
         //set back to false
         CNSBP_Runner.converged = false;

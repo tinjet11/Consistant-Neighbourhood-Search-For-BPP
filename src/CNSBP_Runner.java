@@ -16,14 +16,14 @@ public class CNSBP_Runner {
 
 
     public static void main(String[] args) throws IOException {
-        final int maxIter = 30;
+        final int maxIter = 1;
         for (int iter = 0; iter < maxIter; iter++) {
 
-            BufferedReader reader = new BufferedReader(new FileReader("/Users/leongtinjet/Downloads/BPP.txt"));
-            //BufferedReader reader = new BufferedReader(new FileReader("/Users/leongtinjet/Downloads/hard28/hard28"));
-            String line;
-            // Read item weights and quantities
+            BufferedReader reader = new BufferedReader(new FileReader("src/BPP.txt"));
 
+            String line;
+
+            // Read item weights and quantities
             while ((line = reader.readLine()) != null) {
                 int id = 0;
                 List<Item> items = new ArrayList<>();
@@ -49,7 +49,14 @@ public class CNSBP_Runner {
                 // if (!problemName.trim().equalsIgnoreCase("'TEST0049'")) {
                 Problem problem = new Problem(items, capacity,problemName);
                 CNS_BP binPacking = new CNS_BP(problem);
-                System.out.println(problemName);
+
+                System.out.printf("\n" +problemName+ "\n");
+                int prob = 0;
+                for (Item i : problem.getAllItems()) {
+                    prob += i.getWeight();
+                }
+
+                System.out.println("Total weight of problem= " + prob);
                 Solution finalSolution = binPacking.runMainLoop();
                 System.out.println("Final total bin number: " + finalSolution.bins.size());
                 System.out.println("Trashcan total remaining item weight: " + problem.getTrashCan().getTotalWeight());
@@ -74,36 +81,27 @@ public class CNSBP_Runner {
                     wastedSpace.put(problemName, finalSolution.getTotalWastedCapacity());
                 }
 
-                int total = 0;
-                for (Bin b : finalSolution.bins) {
-                    total += b.getTotalWeight();
-                }
-
-                int prob = 0;
-                for (Item i : problem.getAllItems()) {
-                    prob += i.getWeight();
-                }
-                System.out.println("Total weight in bin= " + total + " .Total weight of problem= " + prob);
                 // Reset counter
                 Bin.counter = 1;
-                //     }
+
             }
             reader.close();
-            System.out.println(iter);
         }
+
+        System.out.println();
 
         for (Map.Entry<String, Double> entry : totalTime.entrySet()) {
             String key = entry.getKey();
             Double value = entry.getValue();
-            System.out.println("Problem: " + key + ", Average time: " + (value / maxIter)); // Casting value to double
+            System.out.println("Problem: " + key + ", Average time: " + (value / maxIter)+ " second"); // Casting value to double
         }
-
+        System.out.println();
         for (Map.Entry<String, Integer> entry : optimalBin.entrySet()) {
             String key = entry.getKey();
             Integer value = entry.getValue();
-            System.out.println("Problem: " + key + ", Average bin: " + ((double)value / maxIter)); // Casting value to double
+            System.out.println("Problem: " + key + ", Average bin: " + ((double)value / maxIter) + " bins"); // Casting value to double
         }
-
+        System.out.println();
         for (Map.Entry<String, Integer> entry : wastedSpace.entrySet()) {
             String key = entry.getKey();
             Integer value = entry.getValue();
