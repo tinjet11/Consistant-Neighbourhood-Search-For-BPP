@@ -1,6 +1,5 @@
 import java.util.*;
 
-//https://afros.tdasociety.org/wp-content/uploads/2018/06/AFROS_2018_paper_71.pdf
 public class CNS_BP {
     static Problem problem;
 
@@ -23,7 +22,7 @@ public class CNS_BP {
         //S ← complete solution obtained by First Fit
         //Solution S = firstFitDecreasing(items);
         Solution S = firstFit(items);
-        S.printNumBin();
+        System.out.println("Initial Bin num: " + S.bins.size());
 
         //m ← number of bins in S
         int m = S.bins.size();
@@ -40,16 +39,9 @@ public class CNS_BP {
             //try to find complete solution with m bins
             Solution SPrime = CNS(partialSolution);
 
-            System.out.println("\nRemaining space for each bin");
-            for(Bin b: SPrime.bins){
-                System.out.print(b.getRemainingCapacity() + ", ");
-            }
-
             //If solution S′ not complete, then break
             if (!SPrime.isSolutionComplete()) {
                 System.out.println("\nTotal wasted space: " + SPrime.getTotalWastedCapacity());
-                System.out.println("Trashcan Remaining Item List");
-                problem.getTrashCan().print();
                 Solution nonAssigned = firstFitDecreasing(problem.getTrashCan().getItemsList());
                 SPrime.getBins().addAll(nonAssigned.getBins());
                 S = SPrime;
@@ -77,7 +69,6 @@ public class CNS_BP {
 
         //Add those bin with item that we removed in the first step to the solution
         for (Bin bin : binsWithPairs) {
-            System.out.println("bin added");
             S.bins.add(bin);
         }
 
@@ -274,7 +265,7 @@ public class CNS_BP {
             bin1 = new Bin(problem.getCapacity());
             bin2 = new Bin(problem.getCapacity());
             itemsToRemove = new ArrayList<>();
-            System.out.println("Trashcan initial : " + problem.getTrashCan().getTotalWeight());
+
             for (Item item : tc) {
                 if (bin1.addItem(item)) {
                     // If the item was added to bin1, mark it for removal
@@ -301,18 +292,9 @@ public class CNS_BP {
         List<Bin> newBins = new ArrayList<>();
         newBins.add(bin1);
         newBins.add(bin2);
-//        Solution nonAssigned = CNS_BP.firstFitDecreasing(problem.getTrashCan().getItemsList());
-//
-//        List<Bin> newBins = new ArrayList<>();
-//        newBins.addAll(nonAssigned.getBins());
-//        System.out.println(newBins.size());
 
         return newBins;
     }
-
-
-
-    /*******************************************************************************************/
 
     private int computeLowerBound(List<Item> items) {
         int totalWeight = 0;

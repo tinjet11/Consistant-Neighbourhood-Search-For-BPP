@@ -20,20 +20,6 @@ public class Solution {
         this.bins = bins;
     }
 
-
-    public void print() {
-        for (Bin b : bins) {
-            System.out.println("Bin");
-            for (Item i : b.getItemsList()) {
-                System.out.println(i.getWeight());
-            }
-        }
-    }
-
-    public void printNumBin() {
-        System.out.println("Bin num: " + bins.size());
-    }
-
     public Bin getBinById(int id) {
         for (Bin bin : bins) {
             if (bin.getId() == id) {
@@ -90,11 +76,7 @@ public class Solution {
 
 
     public boolean isSolutionComplete() {
-        int total=0;
-        for (Bin bin : bins) {
-            total += bin.getTotalItem();
-        }
-       return (problem.getTrashCan().getTotalItem() ==0);//&& problem.getAllItems().size() == total);
+       return (problem.getTrashCan().getTotalItem() ==0);
     }
 
 

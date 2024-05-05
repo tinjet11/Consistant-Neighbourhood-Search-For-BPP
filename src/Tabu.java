@@ -75,9 +75,9 @@ public class Tabu {
                 break; // Terminate when no allowed move exists
             }
 
-            //System.out.println("Before swap: " + problem.getTrashCan().getTotalWeight());
+
             Bin newBin = performSwap(SStar, TStar, bStar);
-            //System.out.println("After swap: " + problem.getTrashCan().getTotalWeight());
+
             sol.getBins().remove(sol.getBinById(bStarId));
 
             sol.getBins().add(newBin);
@@ -211,60 +211,7 @@ public class Tabu {
         }
     }
 
-
-    private boolean packSetIsBetter() {
-        // Implement your condition for checking if packing the non-assigned items is better
-        return true;
-    }
-
     public List<Bin> packTrashcanIntoNewBins() {
-//        Bin bin1;
-//        Bin bin2;
-//        List<Item> tc = new ArrayList<>(problem.getTrashCan().getItemsList());
-//
-//        Collections.sort(tc, Collections.reverseOrder());
-//        List<Item> itemsToRemove;
-//
-//        int maxAttempts = 1000; // Maximum attempts to pack the items
-//        int attempts = 0;
-//
-//        while (true) {
-//            System.out.println("Repack to bin in tabu");
-//            boolean fullPacked = true;
-//            bin1 = new Bin(problem.getCapacity());
-//            bin2 = new Bin(problem.getCapacity());
-//            itemsToRemove = new ArrayList<>();
-//
-//            for (Item item : tc) {
-//                if (bin1.addItem(item)) {
-//                    itemsToRemove.add(item);
-//                } else if (bin2.addItem(item)) {
-//                    itemsToRemove.add(item);
-//                } else {
-//                    fullPacked = false;
-//                }
-//
-//                if (fullPacked) {
-//                    break;
-//                }
-//            }
-//
-//            attempts++;
-//            if (fullPacked || attempts >= maxAttempts) {
-//                break;
-//            }
-//
-//            Collections.shuffle(tc);
-//        }
-//
-//        // Remove the marked items from the trash can
-//        for (Item item : itemsToRemove) {
-//            problem.getTrashCan().removeItem(item);
-//        }
-//
-//        List<Bin> newBins = new ArrayList<>();
-//        newBins.add(bin1);
-//        newBins.add(bin2);
         Solution nonAssigned = CNS_BP.firstFitDecreasing(problem.getTrashCan().getItemsList());
 
         List<Bin> newBins = new ArrayList<>();

@@ -13,8 +13,6 @@ public class CNSBP_Runner {
     public static HashMap<String, Integer> optimalBin = new HashMap<>();
     public static HashMap<String, Integer> wastedSpace = new HashMap<>();
 
-
-
     public static void main(String[] args) throws IOException {
         final int maxIter = 1;
         for (int iter = 0; iter < maxIter; iter++) {
@@ -61,6 +59,15 @@ public class CNSBP_Runner {
                 System.out.println("Total weight of problem= " + prob);
                 Solution finalSolution = binPacking.runMainLoop();
                 System.out.println("Final total bin number: " + finalSolution.bins.size());
+                System.out.println("Bins");
+                for(Bin b :finalSolution.bins){
+                    System.out.print("[");
+                    for(Item i: b.getItemsList()) {
+                        System.out.print(i.getWeight() + ",");
+                    }
+                    System.out.println("], Wasted Space: " +  b.getRemainingCapacity());
+
+                }
                 System.out.println("Trashcan total remaining item weight: " + problem.getTrashCan().getTotalWeight());
 
                 if (optimalBin.containsKey(problemName)) {
